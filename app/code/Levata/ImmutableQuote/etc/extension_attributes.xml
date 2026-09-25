@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Api/etc/extension_attributes.xsd">
+    <extension_attributes for="Magento\Quote\Api\Data\CartInterface">
+        <attribute code="levata_is_immutable" type="boolean"/>
+        <attribute code="levata_immutable_locked_at" type="string"/>
+        <attribute code="levata_immutable_internal_reference" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Quote\Api\Data\CartItemInterface">
+        <attribute code="levata_custom_price" type="float"/>
+    </extension_attributes>
+</config>

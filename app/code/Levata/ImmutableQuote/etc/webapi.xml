@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/immutable-quotes/quotes" method="POST">
+        <service class="Levata\ImmutableQuote\Api\QuoteImmutableManagementInterface" method="createQuote"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_manage"/>
+        </resources>
+    </route>
+    <route url="/V1/immutable-quotes/quotes/:quoteId" method="GET">
+        <service class="Levata\ImmutableQuote\Api\QuoteImmutableManagementInterface" method="getQuote"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_view"/>
+        </resources>
+    </route>
+    <route url="/V1/customers/:customerId/immutable-quotes" method="GET">
+        <service class="Levata\ImmutableQuote\Api\QuoteImmutableManagementInterface" method="getCustomerQuotes"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_view"/>
+        </resources>
+    </route>
+    <route url="/V1/immutable-quotes/quotes/:quoteId/lock" method="POST">
+        <service class="Levata\ImmutableQuote\Api\QuoteImmutableManagementInterface" method="lockQuote"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_manage"/>
+        </resources>
+    </route>
+    <route url="/V1/immutable-quotes/quotes/:quoteId/unlock" method="POST">
+        <service class="Levata\ImmutableQuote\Api\QuoteImmutableManagementInterface" method="unlockQuote"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_unlock"/>
+        </resources>
+    </route>
+    <route url="/V1/immutable-quotes/quotes/:quoteId/enable" method="POST">
+        <service class="Levata\ImmutableQuote\Api\QuoteImmutableManagementInterface" method="enableQuote"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_enable"/>
+        </resources>
+    </route>
+    <route url="/V1/immutable-quotes/quotes/:quoteId/items" method="POST">
+        <service class="Levata\ImmutableQuote\Api\QuoteItemManagementInterface" method="saveItem"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_manage"/>
+        </resources>
+    </route>
+    <route url="/V1/immutable-quotes/quotes/:quoteId" method="DELETE">
+        <service class="Levata\ImmutableQuote\Api\QuoteImmutableManagementInterface" method="deleteQuote"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_delete"/>
+        </resources>
+    </route>
+    <route url="/V1/immutable-quotes/quotes/:quoteId/payment-information" method="POST">
+        <service class="Levata\ImmutableQuote\Api\QuotePaymentManagementInterface" method="setPaymentMethod"/>
+        <resources>
+            <resource ref="Levata_ImmutableQuote::quote_manage"/>
+        </resources>
+    </route>
+</routes>

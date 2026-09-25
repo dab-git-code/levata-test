@@ -1,0 +1,478 @@
+{
+  "info": {
+    "name": "Levata Immutable Quote",
+    "description": "REST API for Levata_ImmutableQuote (Magento 2.4).\n\nFlow tip: Auth → Create → Items → Enable → Addresses (core) → Payment → Lock.\nOr one-shot Create with items + lock + enable (set addresses after enable, before lock).\n\nCore Magento used for addresses:\n- POST /V1/carts/:cartId/shipping-information\n- POST /V1/carts/:cartId/billing-address\nThose require an active cart (Enable first) and are blocked after Lock.\n\nOwner: david.arteaga.blazquez@gmail.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://levata.local"
+    },
+    {
+      "key": "store_code",
+      "value": "default"
+    },
+    {
+      "key": "admin_username",
+      "value": "admin"
+    },
+    {
+      "key": "admin_password",
+      "value": "admin123"
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "customer_id",
+      "value": "1"
+    },
+    {
+      "key": "quote_id",
+      "value": "1"
+    },
+    {
+      "key": "source_quote_id",
+      "value": "1"
+    },
+    {
+      "key": "store_id",
+      "value": "1"
+    },
+    {
+      "key": "sku",
+      "value": "24-MB01"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{admin_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "0. Auth",
+      "item": [
+        {
+          "name": "Get Admin Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const token = pm.response.text().replace(/\"/g, '');",
+                  "  pm.collectionVariables.set('admin_token', token);",
+                  "  console.log('admin_token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            },
+            "url": "{{base_url}}/rest/V1/integration/admin/token",
+            "description": "Stores the token in collection variable admin_token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Quotes lifecycle",
+      "item": [
+        {
+          "name": "Create empty quote",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) { pm.collectionVariables.set('quote_id', String(json.id)); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": {\n    \"customer_id\": {{customer_id}},\n    \"store_id\": {{store_id}},\n    \"lock\": false,\n    \"enable\": false\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes",
+            "description": "Creates a new inactive mutable quote for the customer."
+          }
+        },
+        {
+          "name": "Create quote (one-shot: items + lock)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) { pm.collectionVariables.set('quote_id', String(json.id)); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": {\n    \"customer_id\": {{customer_id}},\n    \"store_id\": {{store_id}},\n    \"items\": [\n      {\n        \"sku\": \"{{sku}}\",\n        \"qty\": 2,\n        \"extension_attributes\": {\n          \"levata_custom_price\": 49.5\n        }\n      }\n    ],\n    \"lock\": true,\n    \"enable\": false,\n    \"internal_reference\": \"PO-7781\",\n    \"notes\": \"Negotiated Q3\"\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes",
+            "description": "Order: create → items (with negotiated price) → lock. Set payment BEFORE lock if you need checkout (use stepwise flow for payment)."
+          }
+        },
+        {
+          "name": "Create quote from clone (source_quote_id)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) { pm.collectionVariables.set('quote_id', String(json.id)); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": {\n    \"customer_id\": {{customer_id}},\n    \"store_id\": {{store_id}},\n    \"source_quote_id\": {{source_quote_id}},\n    \"lock\": false,\n    \"enable\": false\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes",
+            "description": "Clones source quote into a NEW inactive quote. Source is never modified."
+          }
+        },
+        {
+          "name": "Get quote by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}",
+            "description": "Returns cart with extension_attributes.levata_is_immutable."
+          }
+        },
+        {
+          "name": "List customer quotes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/customers/{{customer_id}}/immutable-quotes",
+            "description": "Active + inactive quotes with immutability flags."
+          }
+        },
+        {
+          "name": "Add item (negotiated price)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartItem\": {\n    \"sku\": \"{{sku}}\",\n    \"qty\": 1,\n    \"quote_id\": 0,\n    \"extension_attributes\": {\n      \"levata_custom_price\": 40\n    }\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/items",
+            "description": "Only while quote is mutable. quote_id in body is overwritten by path."
+          }
+        },
+        {
+          "name": "Enable (activate) quote",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/enable",
+            "description": "Single active cart for customer (Magento is_active). Customers normally use My Quotes UI."
+          }
+        },
+        {
+          "name": "Set shipping information (core)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/carts/{{quote_id}}/shipping-information",
+            "description": "Magento core: sets shipping address + method (and optional billing). Requires an ACTIVE cart (Enable first). Blocked after Lock. Carrier/method codes must match store config (default Luma: flatrate/flatrate).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressInformation\": {\n    \"shipping_address\": {\n      \"region\": \"California\",\n      \"region_id\": 12,\n      \"region_code\": \"CA\",\n      \"country_id\": \"US\",\n      \"street\": [\n        \"123 Ocean Ave\"\n      ],\n      \"postcode\": \"90210\",\n      \"city\": \"Beverly Hills\",\n      \"firstname\": \"Jane\",\n      \"lastname\": \"Doe\",\n      \"email\": \"customer@example.com\",\n      \"telephone\": \"555-0100\"\n    },\n    \"billing_address\": {\n      \"region\": \"California\",\n      \"region_id\": 12,\n      \"region_code\": \"CA\",\n      \"country_id\": \"US\",\n      \"street\": [\n        \"123 Ocean Ave\"\n      ],\n      \"postcode\": \"90210\",\n      \"city\": \"Beverly Hills\",\n      \"firstname\": \"Jane\",\n      \"lastname\": \"Doe\",\n      \"email\": \"customer@example.com\",\n      \"telephone\": \"555-0100\"\n    },\n    \"shipping_carrier_code\": \"flatrate\",\n    \"shipping_method_code\": \"flatrate\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Set billing address (core)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/carts/{{quote_id}}/billing-address",
+            "description": "Magento core BillingAddressManagement. Requires ACTIVE cart. Blocked after Lock. Optional if shipping-information already sent billing_address.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": {\n    \"region\": \"California\",\n    \"region_id\": 12,\n    \"region_code\": \"CA\",\n    \"country_id\": \"US\",\n    \"street\": [\n      \"123 Ocean Ave\"\n    ],\n    \"postcode\": \"90210\",\n    \"city\": \"Beverly Hills\",\n    \"firstname\": \"Jane\",\n    \"lastname\": \"Doe\",\n    \"email\": \"customer@example.com\",\n    \"telephone\": \"555-0100\"\n  },\n  \"useForShipping\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Set payment (before lock)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": {\n    \"method\": \"checkmo\"\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/payment-information",
+            "description": "Must be set before lock. After lock, payment cannot change."
+          }
+        },
+        {
+          "name": "Lock quote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lockRequest\": {\n    \"internal_reference\": \"PO-7781\",\n    \"notes\": \"Do not change shipping or payment\"\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/lock",
+            "description": "Marks quote immutable (is_locked=1)."
+          }
+        },
+        {
+          "name": "Unlock quote",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/unlock",
+            "description": "Sets is_locked=0; metadata row kept for audit."
+          }
+        },
+        {
+          "name": "Delete quote",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}",
+            "description": "Hard-deletes Magento quote; quote_inmutable CASCADE."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Recommended stepwise happy path",
+      "item": [
+        {
+          "name": "A — Create empty",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) { pm.collectionVariables.set('quote_id', String(json.id)); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": {\n    \"customer_id\": {{customer_id}},\n    \"store_id\": {{store_id}}\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes"
+          }
+        },
+        {
+          "name": "B — Add item with custom price",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartItem\": {\n    \"sku\": \"{{sku}}\",\n    \"qty\": 2,\n    \"quote_id\": 0,\n    \"extension_attributes\": {\n      \"levata_custom_price\": 49.5\n    }\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/items"
+          }
+        },
+        {
+          "name": "C — Enable (required for core address APIs)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/enable",
+            "description": "Magento core address endpoints use getActive(); quote must be active before setting addresses."
+          }
+        },
+        {
+          "name": "D — Set shipping information (core)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/carts/{{quote_id}}/shipping-information",
+            "description": "Magento core: sets shipping address + method (and optional billing). Requires an ACTIVE cart (Enable first). Blocked after Lock. Carrier/method codes must match store config (default Luma: flatrate/flatrate).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressInformation\": {\n    \"shipping_address\": {\n      \"region\": \"California\",\n      \"region_id\": 12,\n      \"region_code\": \"CA\",\n      \"country_id\": \"US\",\n      \"street\": [\n        \"123 Ocean Ave\"\n      ],\n      \"postcode\": \"90210\",\n      \"city\": \"Beverly Hills\",\n      \"firstname\": \"Jane\",\n      \"lastname\": \"Doe\",\n      \"email\": \"customer@example.com\",\n      \"telephone\": \"555-0100\"\n    },\n    \"billing_address\": {\n      \"region\": \"California\",\n      \"region_id\": 12,\n      \"region_code\": \"CA\",\n      \"country_id\": \"US\",\n      \"street\": [\n        \"123 Ocean Ave\"\n      ],\n      \"postcode\": \"90210\",\n      \"city\": \"Beverly Hills\",\n      \"firstname\": \"Jane\",\n      \"lastname\": \"Doe\",\n      \"email\": \"customer@example.com\",\n      \"telephone\": \"555-0100\"\n    },\n    \"shipping_carrier_code\": \"flatrate\",\n    \"shipping_method_code\": \"flatrate\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "E — Set billing address (core)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/carts/{{quote_id}}/billing-address",
+            "description": "Magento core BillingAddressManagement. Requires ACTIVE cart. Blocked after Lock. Optional if shipping-information already sent billing_address.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": {\n    \"region\": \"California\",\n    \"region_id\": 12,\n    \"region_code\": \"CA\",\n    \"country_id\": \"US\",\n    \"street\": [\n      \"123 Ocean Ave\"\n    ],\n    \"postcode\": \"90210\",\n    \"city\": \"Beverly Hills\",\n    \"firstname\": \"Jane\",\n    \"lastname\": \"Doe\",\n    \"email\": \"customer@example.com\",\n    \"telephone\": \"555-0100\"\n  },\n  \"useForShipping\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "F — Set payment checkmo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": {\n    \"method\": \"checkmo\"\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/payment-information"
+          }
+        },
+        {
+          "name": "G — Lock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lockRequest\": {\n    \"internal_reference\": \"PO-DEMO\",\n    \"notes\": \"Ready for customer checkout\"\n  }\n}"
+            },
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}/lock"
+          }
+        },
+        {
+          "name": "H — Verify get quote",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/rest/{{store_code}}/V1/immutable-quotes/quotes/{{quote_id}}"
+          }
+        }
+      ]
+    }
+  ]
+}

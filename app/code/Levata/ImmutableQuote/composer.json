@@ -1,0 +1,21 @@
+{
+    "name": "levata/module-immutable-quote",
+    "description": "Immutable B2B quote locking for Magento 2",
+    "type": "magento2-module",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.1",
+        "magento/framework": "*",
+        "magento/module-quote": "*",
+        "magento/module-customer": "*",
+        "magento/module-checkout": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Levata\\ImmutableQuote\\": ""
+        }
+    }
+}

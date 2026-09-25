@@ -1,0 +1,80 @@
+<?php
+/** @var \Levata\ImmutableQuote\Block\Customer\QuoteList $block */
+$quotes = $block->getQuotes();
+?>
+<?php if (empty($quotes)): ?>
+    <p><?= $block->escapeHtml(__('You have no quotes yet.')) ?></p>
+<?php else: ?>
+    <div class="table-wrapper levata-quotes">
+        <table class="data table table-order-items" id="my-quotes-table">
+            <caption class="table-caption"><?= $block->escapeHtml(__('My Quotes')) ?></caption>
+            <thead>
+            <tr>
+                <th scope="col" class="col id"><?= $block->escapeHtml(__('Quote')) ?></th>
+                <th scope="col" class="col type"><?= $block->escapeHtml(__('Type')) ?></th>
+                <th scope="col" class="col status"><?= $block->escapeHtml(__('Status')) ?></th>
+                <th scope="col" class="col total"><?= $block->escapeHtml(__('Total')) ?></th>
+                <th scope="col" class="col actions"><?= $block->escapeHtml(__('Actions')) ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($quotes as $quote): ?>
+                <?php
+                $quoteId = (int) $quote->getId();
+                $isImmutable = $block->isImmutable($quote);
+                $isActive = (bool) $quote->getIsActive();
+                $reference = $block->getInternalReference($quote);
+                ?>
+                <tr>
+                    <td data-th="<?= $block->escapeHtmlAttr(__('Quote')) ?>" class="col id">
+                        #<?= $block->escapeHtml((string) $quoteId) ?>
+                        <?php if ($reference): ?>
+                            <div class="levata-quote-ref">
+                                <?= $block->escapeHtml(__('Ref: %1', $reference)) ?>
+                            </div>
+                        <?php endif; ?>
+                    </td>
+                    <td data-th="<?= $block->escapeHtmlAttr(__('Type')) ?>" class="col type">
+                        <?php if ($isImmutable): ?>
+                            <span class="levata-badge levata-badge-locked">
+                                <?= $block->escapeHtml(__('Locked')) ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="levata-badge levata-badge-mutable">
+                                <?= $block->escapeHtml(__('Mutable')) ?>
+                            </span>
+                        <?php endif; ?>
+                    </td>
+                    <td data-th="<?= $block->escapeHtmlAttr(__('Status')) ?>" class="col status">
+                        <?= $block->escapeHtml($isActive ? __('Active') : __('Inactive')) ?>
+                    </td>
+                    <td data-th="<?= $block->escapeHtmlAttr(__('Total')) ?>" class="col total">
+                        <?= /* @noEscape */ $block->formatQuoteTotal($quote) ?>
+                    </td>
+                    <td data-th="<?= $block->escapeHtmlAttr(__('Actions')) ?>" class="col actions">
+                        <?php if (!$isActive): ?>
+                            <form action="<?= $block->escapeUrl($block->getEnableUrl($quoteId)) ?>"
+                                  method="post"
+                                  class="form levata-activate-quote">
+                                <?= $block->getBlockHtml('formkey') ?>
+                                <button type="submit" class="action primary" title="<?= $block->escapeHtmlAttr(__('Activate')) ?>">
+                                    <span><?= $block->escapeHtml(__('Activate')) ?></span>
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <a class="action" href="<?= $block->escapeUrl($block->getUrl('checkout/cart')) ?>">
+                                <?= $block->escapeHtml(__('Go to cart')) ?>
+                            </a>
+                            <?php if ($isImmutable): ?>
+                                <div class="levata-locked-hint">
+                                    <?= $block->escapeHtml(__('This quote is locked. Items and addresses cannot be changed.')) ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>

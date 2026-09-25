@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Levata_ImmutableQuote::immutable_quote" title="Levata Immutable Quotes" sortOrder="90">
+                    <resource id="Levata_ImmutableQuote::config" title="Configuration" sortOrder="10"/>
+                    <resource id="Levata_ImmutableQuote::quote_view" title="View Quotes" sortOrder="20"/>
+                    <resource id="Levata_ImmutableQuote::quote_manage" title="Manage Quotes (create, items, lock)" sortOrder="30"/>
+                    <resource id="Levata_ImmutableQuote::quote_enable" title="Activate Customer Quote" sortOrder="40"/>
+                    <resource id="Levata_ImmutableQuote::quote_unlock" title="Remove Immutability" sortOrder="50"/>
+                    <resource id="Levata_ImmutableQuote::quote_delete" title="Delete Quote Metadata" sortOrder="60"/>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>
