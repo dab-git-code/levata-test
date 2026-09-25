@@ -1,0 +1,16 @@
+<?php
+/** @var \Levata\ImmutableQuote\Block\Checkout\ImmutableNotice $block */
+if (!$block->isImmutable()) {
+    return;
+}
+?>
+<div class="message notice levata-immutable-notice" role="alert">
+    <div>
+        <?= $block->escapeHtml(__(
+            'This quote is locked by your sales representative. You can review and checkout, but items, quantities, addresses and shipping cannot be changed.'
+        )) ?>
+        <a href="<?= $block->escapeUrl($block->getQuotesUrl()) ?>">
+            <?= $block->escapeHtml(__('Switch quote')) ?>
+        </a>
+    </div>
+</div>

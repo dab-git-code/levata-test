@@ -1,0 +1,32 @@
+{
+    "quote_inmutable": {
+        "column": {
+            "quote_id": true,
+            "is_locked": true,
+            "locked_at": true,
+            "unlocked_at": true,
+            "created_by_admin_id": true,
+            "internal_reference": true,
+            "notes": true
+        },
+        "index": {
+            "QUOTE_IMMUTABLE_IS_LOCKED": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "QUOTE_IMMUTABLE_QUOTE_ID_QUOTE_ENTITY_ID": true
+        }
+    },
+    "levata_immutable_quote_api_rate": {
+        "column": {
+            "entity_id": true,
+            "consumer_key": true,
+            "window_key": true,
+            "request_count": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "LEVATA_IMMUTABLE_QUOTE_API_RATE_CONSUMER_WINDOW": true
+        }
+    }
+}

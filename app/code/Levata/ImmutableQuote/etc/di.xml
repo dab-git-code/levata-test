@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Levata\ImmutableQuote\Api\QuoteImmutableManagementInterface"
+                type="Levata\ImmutableQuote\Model\QuoteImmutableManagement"/>
+    <preference for="Levata\ImmutableQuote\Api\QuoteItemManagementInterface"
+                type="Levata\ImmutableQuote\Model\QuoteItemManagement"/>
+    <preference for="Levata\ImmutableQuote\Api\QuoteImmutableRepositoryInterface"
+                type="Levata\ImmutableQuote\Model\QuoteImmutableRepository"/>
+    <preference for="Levata\ImmutableQuote\Api\Guard\QuoteImmutabilityGuardInterface"
+                type="Levata\ImmutableQuote\Model\Guard\QuoteImmutabilityGuard"/>
+    <preference for="Levata\ImmutableQuote\Api\Data\QuoteImmutableInterface"
+                type="Levata\ImmutableQuote\Model\QuoteImmutable"/>
+    <preference for="Levata\ImmutableQuote\Api\Data\QuoteImmutableSearchResultsInterface"
+                type="Levata\ImmutableQuote\Model\QuoteImmutableSearchResults"/>
+    <preference for="Levata\ImmutableQuote\Api\Data\QuoteCreateRequestInterface"
+                type="Levata\ImmutableQuote\Model\Data\QuoteCreateRequest"/>
+    <preference for="Levata\ImmutableQuote\Api\Data\QuoteLockRequestInterface"
+                type="Levata\ImmutableQuote\Model\Data\QuoteLockRequest"/>
+    <preference for="Levata\ImmutableQuote\Api\QuotePaymentManagementInterface"
+                type="Levata\ImmutableQuote\Model\QuotePaymentManagement"/>
+
+    <virtualType name="Levata\ImmutableQuote\Model\Audit\LoggerHandler"
+                 type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/immutable_quote_audit.log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Levata\ImmutableQuote\Model\Audit\Logger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Levata\ImmutableQuote\Model\Audit\LoggerHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Levata\ImmutableQuote\Model\Audit\AuditLogger">
+        <arguments>
+            <argument name="logger" xsi:type="object">Levata\ImmutableQuote\Model\Audit\Logger</argument>
+        </arguments>
+    </type>
+
+    <type name="Levata\ImmutableQuote\Model\QuoteImmutableManagement">
+        <plugin name="levata_immutable_quote_feature_gate_management"
+                type="Levata\ImmutableQuote\Plugin\Feature\DisableManagementApi"
+                sortOrder="5"/>
+        <plugin name="levata_immutable_quote_rate_limit_management"
+                type="Levata\ImmutableQuote\Plugin\Webapi\RateLimitManagement"
+                sortOrder="10"/>
+    </type>
+    <type name="Levata\ImmutableQuote\Model\QuoteItemManagement">
+        <plugin name="levata_immutable_quote_feature_gate_items"
+                type="Levata\ImmutableQuote\Plugin\Feature\DisableManagementApi"
+                sortOrder="5"/>
+        <plugin name="levata_immutable_quote_rate_limit_items"
+                type="Levata\ImmutableQuote\Plugin\Webapi\RateLimitManagement"
+                sortOrder="10"/>
+    </type>
+    <type name="Levata\ImmutableQuote\Model\QuotePaymentManagement">
+        <plugin name="levata_immutable_quote_feature_gate_payment"
+                type="Levata\ImmutableQuote\Plugin\Feature\DisableManagementApi"
+                sortOrder="5"/>
+        <plugin name="levata_immutable_quote_rate_limit_payment"
+                type="Levata\ImmutableQuote\Plugin\Webapi\RateLimitManagement"
+                sortOrder="10"/>
+    </type>
+
+    <type name="Magento\Quote\Api\CartRepositoryInterface">
+        <plugin name="levata_immutable_quote_hydrate_cart"
+                type="Levata\ImmutableQuote\Plugin\Quote\CartRepository\HydrateExtensionAttributes"/>
+    </type>
+    <type name="Magento\Quote\Api\CartItemRepositoryInterface">
+        <plugin name="levata_immutable_quote_prevent_cart_item"
+                type="Levata\ImmutableQuote\Plugin\Quote\CartItemRepository\PreventChanges"/>
+    </type>
+    <type name="Magento\Quote\Api\BillingAddressManagementInterface">
+        <plugin name="levata_immutable_quote_prevent_billing"
+                type="Levata\ImmutableQuote\Plugin\Quote\BillingAddressManagement\PreventChanges"/>
+    </type>
+    <type name="Magento\Quote\Api\ShippingAddressManagementInterface">
+        <plugin name="levata_immutable_quote_prevent_shipping_address"
+                type="Levata\ImmutableQuote\Plugin\Quote\ShippingAddressManagement\PreventChanges"/>
+    </type>
+    <type name="Magento\Quote\Api\CouponManagementInterface">
+        <plugin name="levata_immutable_quote_prevent_coupon"
+                type="Levata\ImmutableQuote\Plugin\Quote\CouponManagement\PreventChanges"/>
+    </type>
+    <type name="Magento\Checkout\Api\ShippingInformationManagementInterface">
+        <plugin name="levata_immutable_quote_prevent_shipping_info"
+                type="Levata\ImmutableQuote\Plugin\Checkout\ShippingInformationManagement\PreventChanges"/>
+    </type>
+    <type name="Magento\Checkout\Api\TotalsInformationManagementInterface">
+        <plugin name="levata_immutable_quote_prevent_totals_address"
+                type="Levata\ImmutableQuote\Plugin\Checkout\TotalsInformationManagement\PreventChanges"/>
+    </type>
+    <type name="Magento\Quote\Api\PaymentMethodManagementInterface">
+        <plugin name="levata_immutable_quote_prevent_payment"
+                type="Levata\ImmutableQuote\Plugin\Quote\PaymentMethodManagement\PreventChanges"/>
+    </type>
+    <type name="Magento\Checkout\Api\PaymentInformationManagementInterface">
+        <plugin name="levata_immutable_quote_prevent_payment_info"
+                type="Levata\ImmutableQuote\Plugin\Checkout\PaymentInformationManagement\PreventChanges"/>
+    </type>
+    <type name="Magento\Quote\Model\Quote">
+        <plugin name="levata_immutable_quote_prevent_merge"
+                type="Levata\ImmutableQuote\Plugin\Quote\Model\PreventMerge"/>
+        <plugin name="levata_immutable_quote_prevent_item_changes"
+                type="Levata\ImmutableQuote\Plugin\Quote\Model\PreventItemChanges"/>
+    </type>
+    <type name="Magento\Checkout\CustomerData\Cart">
+        <plugin name="levata_immutable_quote_customer_data_cart"
+                type="Levata\ImmutableQuote\Plugin\CustomerData\Cart\AppendImmutableFlag"/>
+    </type>
+</config>

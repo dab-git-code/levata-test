@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Levata\ImmutableQuote\Block\Checkout\ImmutableNotice"
+                   name="levata.immutable.checkout.notice"
+                   template="Levata_ImmutableQuote::checkout/immutable-notice.phtml"
+                   before="-"
+                   cacheable="false"
+                   ifconfig="levata_immutable_quote/general/enabled"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <levata_immutable_quote>
+            <general>
+                <enabled>1</enabled>
+            </general>
+            <api>
+                <rate_limit_enabled>1</rate_limit_enabled>
+                <rate_limit_per_hour>100</rate_limit_per_hour>
+            </api>
+            <audit>
+                <enabled>1</enabled>
+            </audit>
+        </levata_immutable_quote>
+    </default>
+</config>

@@ -1,0 +1,80 @@
+.levata-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border: 1px solid #ccc;
+}
+
+.levata-badge-locked {
+    border-color: #c07600;
+    color: #7a4a00;
+    background: #fff6e5;
+}
+
+.levata-badge-mutable {
+    border-color: #6b6b6b;
+    color: #333;
+    background: #f5f5f5;
+}
+
+.levata-quote-ref,
+.levata-locked-hint {
+    margin-top: 4px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.levata-activate-quote {
+    display: inline-block;
+    margin: 0;
+}
+
+.levata-immutable-notice {
+    margin-bottom: 2rem;
+}
+
+body.levata-immutable-quote .cart.main.actions,
+body.levata-immutable-quote .action-delete,
+body.levata-immutable-quote .action-edit,
+body.levata-immutable-quote #discount-coupon-form,
+body.levata-immutable-quote .cart.actions .action.update,
+body.levata-immutable-quote .fieldset.estimate {
+    display: none !important;
+}
+
+body.levata-immutable-quote .input-text.qty {
+    pointer-events: none;
+    opacity: 0.65;
+    background: #f5f5f5;
+}
+
+body.levata-immutable-quote .checkout-payment-method .payment-method:not(._active),
+body.levata-immutable-quote .checkout-payment-method .payment-method-title input {
+    pointer-events: none;
+}
+
+/* Checkout: lock address editing UI */
+body.levata-immutable-quote .checkout-shipping-address .action-show-popup,
+body.levata-immutable-quote .checkout-shipping-address .edit-address-link,
+body.levata-immutable-quote .checkout-shipping-address .new-address-popup,
+body.levata-immutable-quote .checkout-billing-address .actions-toolbar,
+body.levata-immutable-quote .checkout-billing-address .action-edit-address,
+body.levata-immutable-quote .checkout-billing-address .billing-address-form {
+    display: none !important;
+}
+
+body.levata-immutable-quote .checkout-shipping-address .shipping-address-items .shipping-address-item:not(.selected-item),
+body.levata-immutable-quote .checkout-shipping-method .table-checkout-shipping-method input[type="radio"] {
+    pointer-events: none;
+}
+
+body.levata-immutable-quote .checkout-shipping-method .table-checkout-shipping-method tbody tr:not(.selected) {
+    opacity: 0.45;
+}
+
+/* Show locked address prominently when address book was replaced */
+body.levata-immutable-quote .checkout-shipping-address .shipping-address-item.selected-item {
+    border-color: #c07600;
+    background: #fffaf0;
+}
